@@ -1,0 +1,29 @@
+:root{--bg:#F4EFE6;--fg:#0F2A33;--tx:#5B6B73;--ac:#FF7A2F;--ok:#3FB8A5;--ln:#cfc8ba;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F2A33;--fg:#F4EFE6;--tx:#a9b6bb;--ln:#2c4650}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:18px/1.6 "Times New Roman",Times,serif}
+main{max-width:860px;margin:0 auto;padding:40px 24px 64px}
+h1,h2,h3{color:var(--fg);line-height:1.15;margin:0}
+h1{font-size:44px}h2{font-size:26px;margin:48px 0 8px}h3{font-size:20px;margin:28px 0 4px}
+p{margin:10px 0}
+hr{border:0;border-top:1px solid var(--ln);margin:32px 0 0}
+a{color:var(--fg);text-decoration-color:var(--ac);text-underline-offset:3px}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.by{color:var(--fg);margin-top:14px}
+.pj{display:grid;grid-template-columns:210px 1fr;gap:6px 24px;padding:16px 0;border-bottom:1px solid var(--ln)}
+.pj b{color:var(--fg)}
+@media(max-width:560px){.pj{grid-template-columns:1fr}h1{font-size:34px}}
+label{display:block;margin:14px 0 4px;color:var(--fg)}
+input,select,textarea{font:inherit;width:100%;padding:8px;border:1px solid var(--tx);background:transparent;color:var(--fg);border-radius:0}
+textarea{min-height:120px}
+button{font:inherit;margin-top:16px;padding:8px 22px;background:var(--fg);color:var(--bg);border:0;cursor:pointer;border-radius:0}
+button:hover{background:var(--ac);color:#0F2A33}
+.w{overflow-x:auto}
+table{border-collapse:collapse;margin-top:12px;min-width:100%}
+th,td{text-align:left;padding:6px 14px 6px 0;border-bottom:1px solid var(--ln);color:var(--fg);white-space:nowrap}
+th{font-weight:700}
+.g td,.g th{text-align:center;padding:6px 10px}
+.g th:first-child{text-align:left}
+td.h,td.b{color:var(--ok);font-weight:700}
+td.f{font-weight:700}
+pre{font:inherit;white-space:pre-wrap;border-left:3px solid var(--ok);padding:6px 12px;color:var(--fg)}

@@ -1,0 +1,30 @@
+A.R.F.A Labs | Page replacement | User manual
+Arsalaan Hasan Shaikh, Falak Nishant Chalasany
+
+WHAT IT DOES
+Runs FIFO, LRU and Optimal on one page reference string and compares
+the number of page faults.
+
+RUN
+  python3 pr.py
+Pages: 7 0 1 2 0 3 0 4 2 3 0 3 2 1 2 0 1 7
+Frames: 3
+
+INPUT
+Pages    whole numbers separated by spaces
+Frames   how many frames memory has
+
+HOW TO READ THE OUTPUT
+Time runs left to right. Frame 1 is the bottom row, the top row is the
+highest frame. A dot is an empty frame.
+Under each column: f = fault (page was not in memory), h = hit.
+The last table lists f and h for each algorithm. Lower f is better.
+
+ALGORITHMS
+FIFO  removes the page that has been in memory longest.
+LRU   removes the page that has gone unused longest.
+OPT   removes the page whose next use is furthest away (needs the
+      whole string in advance, so it is a benchmark).
+
+WEB VERSION
+Open index.html in the same folder as a.css, or visit the deployed page.

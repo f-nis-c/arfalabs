@@ -1,0 +1,34 @@
+A.R.F.A Labs | CPU scheduling | User manual
+Arsalaan Hasan Shaikh, Falak Nishant Chalasany
+
+WHAT IT DOES
+Schedules processes with the algorithm you choose and prints a timeline,
+a table of times and the averages. "All" compares every algorithm.
+
+RUN
+  python3 cp.py
+Procs: 4
+Enter id at bt pri (low pri = first):
+a 0 8 2
+b 1 4 1
+c 2 9 4
+d 3 5 3
+Pick: 3
+
+INPUT
+id   a name       at   arrival time    bt   burst time
+pri  priority, a lower number runs first
+Times are whole numbers. Round Robin and All ask for a quantum.
+
+MENU
+1 FCFS   2 SJF   3 SRTF   4 Pri   5 PriP (preemptive)   6 RR   7 All
+
+HOW TO READ THE OUTPUT
+Timeline  |a 0-8 |b 8-12| means a ran from 0 to 8, then b.
+CT   completion time
+TAT  turnaround time = CT - AT
+WT   waiting time    = TAT - BT
+Avg  mean TAT and WT. Lower is better.
+
+WEB VERSION
+Open index.html in the same folder as a.css, or visit the deployed page.

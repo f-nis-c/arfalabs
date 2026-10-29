@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Page replacement | A.R.F.A Labs</title><link rel="stylesheet" href="../a.css"></head>
+<body><main>
+<p><a href="../">A.R.F.A Labs</a></p>
+<h1>Page replacement</h1>
+<p>FIFO, LRU and Optimal run together on the same input.</p>
+<label for="r">Pages, separated by spaces</label>
+<input id="r" value="7 0 1 2 0 3 0 4 2 3 0 3 2 1 2 0 1 7">
+<label for="n">Frames</label>
+<input id="n" type="number" min="1" max="10" value="3">
+<button id="g">Run</button>
+<div id="o"></div>
+<h2>Manual</h2>
+<p>Type page numbers with spaces between them. Choose how many frames memory has. Press Run.</p>
+<p>Each grid shows time moving left to right. Frame 1 is the bottom row. A dash is an empty frame. Under each column, f means the page was not in memory (a fault) and h means it was (a hit). The totals use the same letters.</p>
+<p>FIFO removes the page that has been in memory longest. LRU removes the page unused for the longest time. Optimal removes the page whose next use is furthest away, so it needs the whole string in advance and serves as the lower bound.</p>
+<p>Python version: <a href="pr.py">pr.py</a> (run <code>python3 pr.py</code>). Text manual: <a href="MANUAL.txt">MANUAL.txt</a>.</p>
+</main>
+<script>
+const sm=(r,n,k)=>{let m=Array(n).fill(null),q=[],f=0,g=[];r.forEach((x,i)=>{let s="h",j;if(m.includes(x)){if(k==1){q.splice(q.indexOf(x),1);q.push(x)}}else{f++;s="f";if(m.includes(null))j=m.indexOf(null);else{let t=r.slice(i+1),v=k==2?q.reduce((a,y)=>{let d=t.indexOf(y);d=d<0?t.length+1:d;return d>a[1]?[y,d]:a},[0,-1])[0]:q[0];q.splice(q.indexOf(v),1);j=m.indexOf(v)}m[j]=x;q.push(x)}g.push([m.slice(),s])});return[g,f]}
+const pr=(h,r,n,k)=>{let[g,f]=sm(r,n,k),o='<h3>'+h+'</h3><div class="w"><table class="g"><tr><th>Pg</th>'+r.map(x=>'<th>'+x+'</th>').join('')+'</tr>';for(let j=n-1;j>=0;j--)o+='<tr><th>Fr '+(j+1)+'</th>'+g.map(c=>'<td>'+(c[0][j]??'-')+'</td>').join('')+'</tr>';o+='<tr><th></th>'+g.map(c=>'<td class="'+c[1]+'">'+c[1]+'</td>').join('')+'</tr></table></div><p>f='+f+' h='+(r.length-f)+'</p>';return[o,f]}
+document.getElementById("g").onclick=()=>{let r=document.getElementById("r").value.trim().split(/\s+/).map(Number),n=+document.getElementById("n").value;if(!r.length||r.some(isNaN)||!(n>0)){document.getElementById("o").innerHTML="<p>Enter numbers only, and at least one frame.</p>";return}
+let a=[["FIFO",0],["LRU",1],["OPT",2]].map(x=>{let y=pr(x[0],r,n,x[1]);return[x[0],y[0],y[1]]}),w=Math.min(...a.map(x=>x[2]));
+document.getElementById("o").innerHTML=a.map(x=>x[1]).join("")+'<h3>Compare</h3><table><tr><th>Algo</th><th>f</th><th>h</th></tr>'+a.map(x=>'<tr><td>'+x[0]+'</td><td'+(x[2]==w?' class="b"':'')+'>'+x[2]+'</td><td>'+(r.length-x[2])+'</td></tr>').join('')+'</table>'}
+document.getElementById("g").click()
+</script>
+</body></html>

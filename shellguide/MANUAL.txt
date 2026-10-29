@@ -1,0 +1,25 @@
+A.R.F.A Labs | Linux shell guide | User manual
+Arsalaan Hasan Shaikh, Falak Nishant Chalasany
+
+WHAT IT DOES
+A command guide you search by what you want to do. Type delete and it
+finds rm. Type add to a file and it finds >>.
+
+SCRIPT
+  bash guide.sh
+Type a word to search, a number to run that example, q to quit.
+Examples run in a temporary folder that is removed when you quit.
+Your own files are never touched.
+
+  bash guide.sh copy
+lists the commands matching "copy" first.
+
+WEB BOOK
+Open index.html. Click Open the book, then type in the search box or
+click a command on the index page. Each entry has what it does, what to
+type, what you see, other words for it and related commands.
+Hint: some words in the entries do more when clicked.
+
+REQUIREMENTS
+bash 4 or newer on Linux or WSL. On macOS the default bash is too old,
+install a newer one or use the web book.
