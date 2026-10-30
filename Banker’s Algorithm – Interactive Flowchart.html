@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Banker’s Algorithm – Interactive Flowchart</title>
+<style>
+:root{--bg:#f4f6f9;--ink:#1c2230;--mut:#667085;--card:#fff;--line:#d3d9e3;--b:#dce8f8;--bs:#5a86c5;--g:#d9f0de;--gs:#3f9a55;--r:#f8dada;--rs:#c6514f;--acc:#e08a00;--hl:#fff3d6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12151b;--ink:#e6e9f0;--mut:#98a2b3;--card:#1b1f28;--line:#333a48;--b:#223552;--bs:#6f9be0;--g:#1e3b29;--gs:#58b873;--r:#47252a;--rs:#e06b68;--acc:#f0a830;--hl:#3b3118}}
+:root[data-theme="dark"]{--bg:#12151b;--ink:#e6e9f0;--mut:#98a2b3;--card:#1b1f28;--line:#333a48;--b:#223552;--bs:#6f9be0;--g:#1e3b29;--gs:#58b873;--r:#47252a;--rs:#e06b68;--acc:#f0a830;--hl:#3b3118}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif;padding:16px}
+h1{font-size:22px;margin:0 0 2px}
+.sub{color:var(--mut);margin:0 0 14px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.bar label{color:var(--mut);font-size:13px}
+button,select,input{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 12px}
+button{cursor:pointer}
+button.p{background:var(--acc);border-color:var(--acc);color:#1b1300;font-weight:600}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+input[type=number]{width:52px;padding:6px 6px}
+.main{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr);gap:14px}
+@media(max-width:900px){.main{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+svg{width:100%;height:auto;display:block}
+.node polygon,.node rect{stroke-width:1.6;transition:opacity .3s,stroke-width .3s}
+.node.b polygon,.node.b rect{fill:var(--b);stroke:var(--bs)}
+.node.g rect{fill:var(--g);stroke:var(--gs)}
+.node.r rect{fill:var(--r);stroke:var(--rs)}
+.node text{fill:var(--ink);font-size:13px;text-anchor:middle;pointer-events:none}
+.node{opacity:.45;transition:opacity .3s}
+.node.done{opacity:.85}
+.node.cur{opacity:1}
+.node.cur polygon,.node.cur rect{stroke:var(--acc);stroke-width:4}
+.node.cur{animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{filter:drop-shadow(0 0 7px var(--acc))}}
+.edge{fill:none;stroke:var(--mut);stroke-width:1.5;opacity:.5}
+.edge.done{opacity:.9}
+.edge.on{stroke:var(--acc);stroke-width:3.2;opacity:1;stroke-dasharray:7 5;animation:dash .6s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-12}}
+.lbl{font-size:12px;fill:var(--mut);font-weight:600}
+.title{font-size:15px;font-weight:700;fill:var(--ink);text-anchor:middle}
+@media(prefers-reduced-motion:reduce){.node.cur,.edge.on{animation:none}}
+.say{background:var(--hl);border-radius:8px;padding:10px 12px;min-height:64px;margin-bottom:10px;border-left:4px solid var(--acc)}
+.cnt{color:var(--mut);font-size:12px}
+.vec{font-family:ui-monospace,Menlo,Consolas,monospace}
+table{border-collapse:collapse;width:100%;margin:8px 0;font-size:13px}
+th,td{text-align:left;padding:4px 6px;border-bottom:1px solid var(--line)}
+th{color:var(--mut);font-weight:600}
+tr.cur td{background:var(--hl)}
+tr.fin td:last-child{color:var(--gs);font-weight:700}
+#log{max-height:170px;overflow:auto;margin:6px 0 0;padding-left:20px;font-size:13px;color:var(--mut)}
+#log li.now{color:var(--ink);font-weight:600}
+.seq{font-weight:600}
+</style></head>
+<body>
+<h1>Banker’s algorithm, step by step</h1>
+<p class="sub">Pick a scenario or enter your own request, then step through the flowchart.</p>
+<div class="bar">
+<label for="sc">Scenario</label>
+<select id="sc"><option value="safe">Safe request</option><option value="unsafe">Leads to unsafe state</option><option value="exceed">Exceeds max claim</option><option value="wait">Not available yet</option></select>
+<label for="pi">Process</label><select id="pi"></select>
+<label>Request</label><span><input type="number" min="0" id="q0" aria-label="Request A"> <input type="number" min="0" id="q1" aria-label="Request B"> <input type="number" min="0" id="q2" aria-label="Request C"></span>
+<button id="go" class="p">Run</button>
+</div>
+<div class="bar">
+<button id="prev">◀ Back</button><button id="play" class="p">▶ Play</button><button id="next">Next ▶</button><button id="reset">Restart</button>
+<span class="cnt" id="cnt"></span>
+</div>
+<div class="main">
+<div class="card"><svg id="svg" viewBox="0 0 980 640" role="img" aria-label="Banker’s algorithm flowchart"></svg></div>
+<div class="card">
+<div class="say" id="say"></div>
+<div>Available / Work: <span class="vec" id="av"></span></div>
+<table id="tb"></table>
+<div>Safe sequence: <span class="seq vec" id="sq">–</span></div>
+<ol id="log"></ol>
+</div>
+</div>
+<script>
+const MAX=[[7,5,3],[3,2,2],[9,0,2],[2,2,2],[4,3,3]],AL0=[[0,1,0],[2,0,0],[3,0,2],[2,1,1],[0,0,2]],A0=[3,3,2];
+const SC={safe:[1,[1,0,2]],unsafe:[0,[0,3,0]],exceed:[1,[2,0,0]],wait:[4,[4,0,0]]};
+const V=v=>'('+v.join(', ')+')',le=(a,b)=>a.every((x,i)=>x<=b[i]);
+const N=[ // id,type,cx,cy,w,h,color,lines
+['r1','box',170,55,170,50,'b',['Process Pi requests','resources']],
+['r2','dia',170,160,190,80,'b',['Request[i] ≤','Need[i]?']],
+['e1','box',360,160,140,50,'r',['Error: exceeded','max claim']],
+['r3','dia',170,290,190,80,'b',['Request[i] ≤','Available?']],
+['e2','box',360,290,140,50,'r',['Wait: resources','not available']],
+['r4','box',170,420,230,84,'b',['Simulate allocation:','Available −= Request','Allocation += Request','Need −= Request']],
+['s1','box',660,55,200,62,'b',['Initialize:','Work = Available','Finish[i] = false']],
+['s2','dia',660,190,230,100,'b',['Find i where','Finish[i] = false and','Need[i] ≤ Work?']],
+['s3','box',890,190,150,78,'g',['Pi executes, finishes:','Work += Alloc[i]','Finish[i] = true']],
+['s4','dia',660,340,200,80,'b',['All Finish[i]','= true?']],
+['safe','box',575,450,150,50,'g',['System is in a','SAFE STATE']],
+['unsafe','box',800,450,150,50,'r',['System is in an','UNSAFE STATE']],
+['grant','box',575,525,150,46,'g',['Grant request','permanently']],
+['roll','box',800,525,150,46,'r',['Roll back allocation','& make Pi wait']],
+['end1','end',575,600,100,34,'b',['End']],
+['end2','end',800,600,100,34,'b',['End']]];
+const E={ // edge id: points, label, label pos
+'r1>r2':[[[170,80],[170,120]]],
+'r2>e1':[[[265,160],[290,160]],'No',[266,150]],
+'r2>r3':[[[170,200],[170,250]],'Yes',[182,230]],
+'r3>e2':[[[265,290],[290,290]],'No',[266,280]],
+'r3>r4':[[[170,330],[170,378]],'Yes',[182,356]],
+'r4>s1':[[[285,420],[470,420],[470,55],[560,55]],'Run safety algorithm',[300,411]],
+'s1>s2':[[[660,86],[660,140]]],
+'s2>s3':[[[775,190],[815,190]],'Yes',[780,180]],
+'s3>s2':[[[890,151],[890,110],[718,110],[718,165]]],
+'s2>s4':[[[660,240],[660,300]],'No',[672,272]],
+'s4>safe':[[[560,340],[575,340],[575,425]],'Yes',[525,330]],
+'s4>unsafe':[[[760,340],[800,340],[800,425]],'No',[770,330]],
+'safe>grant':[[[575,475],[575,502]]],'grant>end1':[[[575,548],[575,583]]],
+'unsafe>roll':[[[800,475],[800,502]]],'roll>end2':[[[800,548],[800,583]]]};
+const svg=document.getElementById('svg');
+let h='<defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="context-stroke"/></marker></defs>';
+h+='<text class="title" x="260" y="14">RESOURCE-REQUEST ALGORITHM</text><text class="title" x="700" y="14" style="display:none"></text>';
+for(const k in E){const[p,l,lp]=E[k];h+=`<path id="e-${k.replace('>','_')}" class="edge" marker-end="url(#ar)" d="M${p.map(a=>a.join(' ')).join('L')}"/>`;if(l)h+=`<text class="lbl" x="${lp[0]}" y="${lp[1]}">${l}</text>`}
+for(const[id,t,x,y,w,hh,c,ls]of N){let s;
+if(t=='dia')s=`<polygon points="${x},${y-hh/2} ${x+w/2},${y} ${x},${y+hh/2} ${x-w/2},${y}"/>`;
+else s=`<rect x="${x-w/2}" y="${y-hh/2}" width="${w}" height="${hh}" rx="${t=='end'?hh/2:6}"/>`;
+const y0=y-(ls.length-1)*8+4;
+h+=`<g class="node ${c}" id="n-${id}">${s}${ls.map((q,i)=>`<text x="${x}" y="${y0+i*16}">${q}</text>`).join('')}</g>`}
+svg.innerHTML=h.replace('<text class="title" x="260" y="14">RESOURCE-REQUEST ALGORITHM</text>','');
+svg.setAttribute('viewBox','0 -10 980 650');
+
+function build(pi,rq){
+ const S=[];let A=[...A0],AL=AL0.map(r=>[...r]),NE=MAX.map((r,i)=>r.map((x,j)=>x-AL0[i][j])),fin=Array(5).fill(false),W=null,seq=[],cur=-1;
+ const cp=m=>m.map(r=>[...r]);
+ const push=(n,e,t)=>S.push({n,e,t,A:[...A],AL:cp(AL),NE:cp(NE),W:W&&[...W],F:[...fin],seq:[...seq],cur});
+ push('r1',[],`P${pi} requests ${V(rq)}. First check the request against what it may still need.`);cur=pi;
+ if(!le(rq,NE[pi])){push('r2',['r1>r2'],`Request ${V(rq)} is larger than Need ${V(NE[pi])}. The answer is No.`);push('e1',['r2>e1'],`Error: P${pi} exceeded its maximum claim.`);return S}
+ push('r2',['r1>r2'],`Request ${V(rq)} ≤ Need ${V(NE[pi])}. Yes, continue.`);
+ if(!le(rq,A)){push('r3',['r2>r3'],`Request ${V(rq)} is larger than Available ${V(A)}. The answer is No.`);push('e2',['r3>e2'],`P${pi} must wait: the resources aren’t available yet.`);return S}
+ push('r3',['r2>r3'],`Request ${V(rq)} ≤ Available ${V(A)}. Yes, continue.`);
+ const o={A:[...A],AL:cp(AL),NE:cp(NE)};
+ A=A.map((x,j)=>x-rq[j]);AL[pi]=AL[pi].map((x,j)=>x+rq[j]);NE[pi]=NE[pi].map((x,j)=>x-rq[j]);
+ push('r4',['r3>r4'],`Pretend to grant it. Available is now ${V(A)}, P${pi} holds ${V(AL[pi])} and needs ${V(NE[pi])}.`);cur=-1;
+ W=[...A];push('s1',['r4>s1'],`Safety algorithm starts: Work = ${V(W)}, and no process has finished.`);
+ let prev='s1';
+ for(;;){const i=fin.findIndex((f,i)=>!f&&le(NE[i],W));
+  if(i<0){push('s2',[prev+'>s2'],`No unfinished process has Need ≤ Work ${V(W)}. The answer is No.`);break}
+  cur=i;push('s2',[prev+'>s2'],`P${i} qualifies: Finish is false and Need ${V(NE[i])} ≤ Work ${V(W)}.`);
+  W=W.map((x,j)=>x+AL[i][j]);fin[i]=true;seq.push('P'+i);
+  push('s3',['s2>s3'],`P${i} runs to completion and releases ${V(AL[i])}. Work becomes ${V(W)}.`);prev='s3'}
+ cur=-1;const ok=fin.every(Boolean);
+ push('s4',['s2>s4'],ok?'Every Finish[i] is true.':`Not every process can finish (${fin.map((f,i)=>f?'':'P'+i).filter(Boolean).join(', ')} stuck).`);
+ if(ok){push('safe',['s4>safe'],`Safe state, with safe sequence ${seq.join(' → ')}.`);push('grant',['safe>grant'],`The request is granted permanently. Available = ${V(A)}.`);push('end1',['grant>end1'],'Done.')}
+ else{push('unsafe',['s4>unsafe'],'Unsafe state: granting could lead to deadlock.');A=o.A;AL=o.AL;NE=o.NE;W=null;seq=[];fin=Array(5).fill(false);
+  push('roll',['unsafe>roll'],`Allocation rolled back to Available ${V(A)}. P${pi} waits.`);push('end2',['roll>end2'],'Done.')}
+ return S}
+
+const $=id=>document.getElementById(id);let S=[],k=0,timer=null;
+$('pi').innerHTML=[0,1,2,3,4].map(i=>`<option value="${i}">P${i}</option>`).join('');
+function load(name){const[p,r]=SC[name];$('pi').value=p;r.forEach((x,i)=>$('q'+i).value=x)}
+function run(){stop();S=build(+$('pi').value,[0,1,2].map(i=>+$('q'+i).value||0));k=0;$('log').innerHTML=S.map((s,i)=>`<li id="l${i}">${s.t}</li>`).join('');show()}
+function show(){
+ const s=S[k];document.querySelectorAll('.node').forEach(n=>n.classList.remove('cur','done'));
+ document.querySelectorAll('.edge').forEach(n=>n.classList.remove('on','done'));
+ for(let i=0;i<k;i++){$('n-'+S[i].n).classList.add('done');S[i].e.forEach(e=>$('e-'+e.replace('>','_')).classList.add('done'))}
+ $('n-'+s.n).classList.remove('done');$('n-'+s.n).classList.add('cur');
+ s.e.forEach(e=>{const el=$('e-'+e.replace('>','_'));el.classList.remove('done');el.classList.add('on')});
+ $('say').textContent=s.t;$('cnt').textContent=`Step ${k+1} of ${S.length}`;
+ $('av').textContent=V(s.W||s.A)+(s.W?'  (Work)':'  (Available)');
+ $('sq').textContent=s.seq.length?s.seq.join(' → '):'–';
+ $('tb').innerHTML='<tr><th>Proc</th><th>Alloc</th><th>Need</th><th>Finish</th></tr>'+s.AL.map((a,i)=>`<tr class="${i==s.cur?'cur':''} ${s.F[i]?'fin':''}"><td>P${i}</td><td class="vec">${a.join(' ')}</td><td class="vec">${s.NE[i].join(' ')}</td><td>${s.F[i]?'True':'false'}</td></tr>`).join('');
+ document.querySelectorAll('#log li').forEach((l,i)=>{l.classList.toggle('now',i==k);l.style.display=i<=k?'':'none'});
+ $('l'+k).scrollIntoView({block:'nearest'});
+ $('prev').disabled=k==0;$('next').disabled=k==S.length-1}
+function stop(){clearInterval(timer);timer=null;$('play').textContent='▶ Play'}
+function step(d){k=Math.max(0,Math.min(S.length-1,k+d));show();if(k==S.length-1)stop()}
+$('next').onclick=()=>{stop();step(1)};$('prev').onclick=()=>{stop();step(-1)};
+$('reset').onclick=()=>{stop();k=0;show()};$('go').onclick=run;
+$('sc').onchange=()=>{load($('sc').value);run()};
+$('play').onclick=()=>{if(timer)return stop();if(k==S.length-1)k=0;show();$('play').textContent='❚❚ Pause';timer=setInterval(()=>step(1),1700)};
+addEventListener('keydown',e=>{if(e.target.tagName=='INPUT'||e.target.tagName=='SELECT')return;if(e.key=='ArrowRight'){stop();step(1)}if(e.key=='ArrowLeft'){stop();step(-1)}});
+load('safe');run();
+</script></body></html>
